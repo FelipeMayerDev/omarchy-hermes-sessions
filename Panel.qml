@@ -40,9 +40,15 @@ Panel {
   property int focusedIndex: 0
 
   property int refreshIntervalSec: Math.max(10, Number(setting("refreshIntervalSec", 30)))
-  property int sessionLimit: Math.max(5, Number(setting("sessionLimit", 15)))
 
-  readonly property var visibleSessions: sessions.slice(0, sessionLimit)
+  // A sane snapshot is 8 rows × ~250B ≈ 2KB; 8× headroom covers wider
+  // panels and longer titles. Anything bigger means the helper broke —
+  // show the stale snapshot rather than parsing unbounded input into
+  // the long-lived shell process.
+  readonly property int maxSnapshotBytes: 16384
+
+  // The helper caps the query at 8 rows; the panel renders exactly that.
+  readonly property var visibleSessions: sessions.slice(0, 8)
 
   function refresh() {
     if (snapshotProcess.running) return
@@ -65,6 +71,11 @@ Panel {
       waitForEnd: true
       onStreamFinished: {
         root.loading = false
+        // Seatbelt against a misbehaving helper (see maxSnapshotBytes).
+        if (String(text).length > root.maxSnapshotBytes) {
+          console.warn(root.logTag, "snapshot too large, discarded:", String(text).length, "bytes")
+          return
+        }
         try {
           root.snapshot = JSON.parse(String(text))
         } catch (e) {

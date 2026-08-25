@@ -62,8 +62,7 @@ Right-click the bar icon or use the shell's plugin settings:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `refreshIntervalSec` | 30 | How often to poll the session store (10–600) |
-| `sessionLimit` | 15 | Max sessions shown in the panel (5–50) |
+| `refreshIntervalSec` | 30 | How often to poll the session store (10–600). The panel shows the 8 most recent sessions. |
 
 ## Privacy
 
