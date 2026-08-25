@@ -25,31 +25,36 @@ A bar widget that shows what your [Hermes Agent](https://hermes-agent.nousresear
 ## Install
 
 ```bash
-omarchy plugin add <your-repo-url>.git
-omarchy plugin enable kelso.hermes-sessions
+omarchy plugin add https://github.com/stevequinn/omarchy-hermes-sessions.git
 ```
 
-Or manually: clone this repo into `~/.config/omarchy/plugins/kelso.hermes-sessions/`, then enable it via **Omarchy menu → Plugins** (or `omarchy plugin enable kelso.hermes-sessions`) and place it in the bar with `omarchy bar move kelso.hermes-sessions --section right`.
-
-## Hotkey
-
-**Super+Shift+H** toggles the panel by default. On first boot after install, a
-post-boot hook adds this binding to `~/.config/hypr/bindings.lua` (skipped if
-you already have it or bound the key to something else).
-
-To activate it immediately after installing (without rebooting), run:
+Then enable it and place it in the bar:
 
 ```bash
-~/.config/omarchy/plugins/kelso.hermes-sessions/scripts/install-keybinding.sh
+omarchy plugin enable kelso.hermes-sessions
+omarchy bar put kelso.hermes-sessions --after omarchy.tray
 ```
 
-To add it manually instead, put this in `~/.config/hypr/bindings.lua` and run `hyprctl reload`:
+(Or manage both via **Omarchy menu → Plugins**.)
+
+## Uninstall
+
+```bash
+omarchy plugin disable kelso.hermes-sessions
+omarchy plugin remove kelso.hermes-sessions
+```
+
+If you added the optional hotkey, remove its lines from
+`~/.config/hypr/bindings.lua` and run `hyprctl reload`.
+
+## Hotkey (optional)
+
+To toggle the panel from anywhere, add this to `~/.config/hypr/bindings.lua`
+and run `hyprctl reload`:
 
 ```lua
 o.bind("SUPER + SHIFT + H", "Hermes sessions panel", "omarchy-shell kelso.hermes-sessions toggle")
 ```
-
-Then run `hyprctl reload`.
 
 ## Settings
 
