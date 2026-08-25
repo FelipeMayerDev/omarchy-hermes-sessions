@@ -28,9 +28,13 @@ omarchy plugin enable kelso.hermes-sessions
 
 Or manually: clone this repo into `~/.config/omarchy/plugins/kelso.hermes-sessions/`, then enable it via **Omarchy menu → Plugins** (or `omarchy plugin enable kelso.hermes-sessions`) and place it in the bar with `omarchy bar move kelso.hermes-sessions --section right`.
 
-## Optional hotkey
+## Hotkey
 
-Add a global toggle to `~/.config/hypr/bindings.lua`:
+**Super+Shift+H** toggles the panel by default. On first boot after install, a
+post-boot hook adds this binding to `~/.config/hypr/bindings.lua` (skipped if
+you already have it or bound the key to something else).
+
+To add it manually, put this in `~/.config/hypr/bindings.lua` and run `hyprctl reload`:
 
 ```lua
 o.bind("SUPER + SHIFT + H", "Hermes sessions panel", "omarchy-shell kelso.hermes-sessions toggle")
