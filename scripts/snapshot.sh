@@ -51,13 +51,19 @@ except Exception:
     except Exception:
         rows = []
 
+def plain(text):
+    # Strip markup-significant characters so nothing that reaches the QML
+    # layer can be interpreted as rich text (Text.AutoText renders <img>
+    # and friends; tooltips have no PlainText override available).
+    return str(text or "").replace("<", "‹").replace(">", "›").replace("&", "+")
+
 sessions = []
 for r in rows[:8]:
     sessions.append({
         "id": str(r.get("id") or ""),
-        "title": str(r.get("title") or "(untitled)"),
-        "cwd": str(r.get("cwd") or ""),
-        "model": str(r.get("model") or ""),
+        "title": plain(r.get("title")) or "(untitled)",
+        "cwd": plain(r.get("cwd")),
+        "model": plain(r.get("model")),
         "messages": int(r.get("messages") or 0),
         "lastActiveTs": float(r.get("last_active") or 0),
         # Live = still open (never ended, or activity continued past an end

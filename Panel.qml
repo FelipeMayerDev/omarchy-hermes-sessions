@@ -329,6 +329,7 @@ Panel {
             visible: !!root.active
             width: parent.width
             text: root.active ? root.active.title : ""
+            textFormat: Text.PlainText
             color: root.dim
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
@@ -458,6 +459,7 @@ Panel {
                   Text {
                     width: parent.width - (modelData.live ? 13 : 0) - ageLabel.width - latestPill.width - Style.space(12)
                     text: modelData.title
+                    textFormat: Text.PlainText
                     color: root.foreground
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.body
@@ -503,6 +505,7 @@ Panel {
                   Text {
                     width: parent.width
                     text: root.sessionSubtitle(modelData)
+                    textFormat: Text.PlainText
                     color: root.dim
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
