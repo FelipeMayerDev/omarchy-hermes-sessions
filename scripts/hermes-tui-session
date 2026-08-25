@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# omarchy:summary=Resume a Hermes session in a terminal TUI (companion to the hermes-status bar plugin)
+# omarchy:args=<session-id>
+# Run INSIDE a terminal (omarchy-launch-tui provides one); never spawns a
+# terminal emulator itself. With no argument, starts a fresh Hermes TUI.
+if [[ -z ${1:-} ]]; then
+  exec hermes --tui
+fi
+exec hermes --tui --resume "$1"

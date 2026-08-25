@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "kelso.hermes-sessions",
+  "name": "Hermes Sessions",
+  "version": "1.0.0",
+  "author": "Steve Quinn",
+  "license": "MIT",
+  "description": "Hermes agent status in the Omarchy bar: current activity plus past sessions, clickable to reopen in a hermes TUI.",
+  "kinds": ["bar-widget"],
+  "activation": "on-demand",
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Hermes",
+    "description": "Current Hermes agent status and recent sessions. Click a session to continue it in a Hermes TUI terminal.",
+    "category": "AI",
+    "aliases": ["hermes", "hermes-status", "agent-status"],
+    "allowMultiple": false,
+    "defaults": {
+      "refreshIntervalSec": 30,
+      "sessionLimit": 15
+    },
+    "schema": [
+      { "key": "refreshIntervalSec", "type": "integer", "label": "Refresh interval (seconds)", "min": 10, "max": 600, "step": 10, "defaultValue": 30 },
+      { "key": "sessionLimit", "type": "integer", "label": "Sessions to show", "min": 5, "max": 50, "step": 5, "defaultValue": 15 }
+    ]
+  }
+}

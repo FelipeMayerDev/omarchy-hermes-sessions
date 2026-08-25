@@ -1,0 +1,7 @@
+# Omarchy shell/user config artifacts
+*.bak
+*.bak.*
+
+# Python
+__pycache__/
+*.pyc
