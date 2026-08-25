@@ -34,7 +34,13 @@ Or manually: clone this repo into `~/.config/omarchy/plugins/kelso.hermes-sessio
 post-boot hook adds this binding to `~/.config/hypr/bindings.lua` (skipped if
 you already have it or bound the key to something else).
 
-To add it manually, put this in `~/.config/hypr/bindings.lua` and run `hyprctl reload`:
+To activate it immediately after installing (without rebooting), run:
+
+```bash
+~/.config/omarchy/plugins/kelso.hermes-sessions/scripts/install-keybinding.sh
+```
+
+To add it manually instead, put this in `~/.config/hypr/bindings.lua` and run `hyprctl reload`:
 
 ```lua
 o.bind("SUPER + SHIFT + H", "Hermes sessions panel", "omarchy-shell kelso.hermes-sessions toggle")
