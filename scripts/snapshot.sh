@@ -16,7 +16,7 @@ SELECT id, COALESCE(title,'') AS title, COALESCE(cwd,'') AS cwd,
        COALESCE(model,'') AS model, message_count AS messages,
        tool_call_count AS tools, source,
        started_at AS started_at, last_activity_at AS last_active,
-       ended_at IS NULL AND last_activity_at > $(( $(date +%s) - 180 )) AS live,
+       ended_at IS NULL OR last_activity_at > ended_at AS open,
        hidden, archived
 FROM sessions
 WHERE hidden = 0 AND archived = 0
@@ -37,15 +37,7 @@ except Exception:
 
 now = time.time()
 
-def age(ts):
-    try:
-        d = now - float(ts)
-    except Exception:
-        return "?"
-    if d < 90: return "just now"
-    if d < 3600: return f"{int(d//60)}m ago"
-    if d < 86400: return f"{int(d//3600)}h ago"
-    return f"{int(d//86400)}d ago"
+LIVE_WINDOW = 60  # seconds of fresh activity that counts as "working"
 
 sessions = []
 for r in rows[:60]:
@@ -57,9 +49,10 @@ for r in rows[:60]:
         "messages": int(r.get("messages") or 0),
         "tools": int(r.get("tools") or 0),
         "source": str(r.get("source") or ""),
-        "lastActive": age(r.get("last_active")),
         "lastActiveTs": float(r.get("last_active") or 0),
-        "live": bool(r.get("live")),
+        # Live = still open (never ended, or activity continued past an end
+        # marker — resumed sessions keep a stale ended_at) AND heartbeat fresh.
+        "live": bool(r.get("open")) and now - float(r.get("last_active") or 0) < LIVE_WINDOW,
     })
 
 # The live record is whichever session most recently did anything at all;

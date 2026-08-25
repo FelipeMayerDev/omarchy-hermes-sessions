@@ -4,9 +4,12 @@ A bar widget that shows what your [Hermes Agent](https://hermes-agent.nousresear
 
 ![category: AI](https://img.shields.io/badge/category-AI-blue)
 
+![Hermes Sessions panel showing live status, the New session button, and recent sessions](assets/screenshot.png)
+
 ## Features
 
 - **Live status** — a pulsing indicator shows when Hermes is actively working; the hero line names the current or most recent session
+- **Bar icon reflects activity** — the icon tints with your theme's accent colour while Hermes is working, and returns to the normal foreground colour when idle
 - **Recent sessions list** — title, relative age, workspace, model, and message count for your latest conversations
 - **Click to continue** — each session opens (or re-focuses) its own terminal running `hermes --tui --resume <id>`
 - **New session button** — one click launches a fresh Hermes TUI

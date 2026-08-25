@@ -15,10 +15,12 @@ Panel {
   manageIpc: false
 
   readonly property color foreground: bar ? bar.foreground : Color.foreground
-  readonly property color urgent: bar ? bar.urgent : Color.urgent
   readonly property color accent: Color.accent
   readonly property color dim: Qt.darker(foreground, 1.55)
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
+
+  // Log tag for console.warn lines — grep-able in the shell journal.
+  readonly property string logTag: "hermes-sessions"
 
   function alpha(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
 
@@ -45,11 +47,14 @@ Panel {
   function refresh() {
     if (snapshotProcess.running) return
     loading = true
-    // Resolve relative to this QML file so the plugin works from any
-    // install location (no absolute paths baked in).
-    var url = Qt.resolvedUrl("scripts/snapshot.sh").toString()
-    snapshotProcess.command = [url.replace(/^file:\/\//, "")]
+    snapshotProcess.command = [scriptPath("snapshot.sh")]
     snapshotProcess.running = true
+  }
+
+  // Companion scripts live beside this QML file; resolve relative to it so
+  // the whole plugin works from any install location.
+  function scriptPath(name) {
+    return Qt.resolvedUrl("scripts/" + name).toString().replace(/^file:\/\//, "")
   }
 
   Process {
@@ -63,14 +68,14 @@ Panel {
         try {
           root.snapshot = JSON.parse(String(text))
         } catch (e) {
-          console.warn("hermes-status", "bad snapshot", e)
+          console.warn(root.logTag, "bad snapshot", e)
         }
       }
     }
 
     stderr: StdioCollector {
       waitForEnd: true
-      onStreamFinished: if (String(text).trim() !== "") console.warn("hermes-status", String(text).trim())
+      onStreamFinished: if (String(text).trim() !== "") console.warn(root.logTag, String(text).trim())
     }
   }
 
@@ -99,30 +104,26 @@ Panel {
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
 
-  // Companion script lives beside this QML file; resolve it the same way so
-  // the whole plugin is relocatable.
-  readonly property string binDir: Qt.resolvedUrl("scripts").toString().replace(/^file:\/\//, "")
-
   function openSession(sessionId) {
     if (!sessionId) return
-    console.warn("hermes-status", "openSession requested:", sessionId)
+    console.warn(root.logTag, "openSession requested:", sessionId)
     // Per-session app-id: omarchy-launch-or-focus matches windows by this id,
     // so each session gets (and later re-focuses) its own terminal instead of
     // all clicks landing on whichever session window was opened first.
     var appId = "hermes-tui-" + String(sessionId)
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
-                   binDir + "/hermes-tui-session", String(sessionId)]
+                   scriptPath("hermes-tui-session"), String(sessionId)]
     Quickshell.execDetached(command)
     root.close()
   }
 
   function launchNewSession() {
-    console.warn("hermes-status", "launchNewSession requested")
+    console.warn(root.logTag, "launchNewSession requested")
     // Unique app-id per click so every new-session request opens a fresh
     // terminal instead of focusing an existing one.
     var appId = "hermes-tui-new-" + Date.now()
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
-                   binDir + "/hermes-tui-session"]
+                   scriptPath("hermes-tui-session")]
     Quickshell.execDetached(command)
     root.close()
   }
@@ -142,8 +143,8 @@ Panel {
   function statusLine() {
     if (!root.snapshot) return "Checking…"
     if (!active) return "Idle — no recent activity"
-    return active.live ? "Working" : "Last seen "
-      + relativeTime(active.lastActiveTs)
+    if (active.live) return "Working"
+    return "Last seen " + relativeTime(active.lastActiveTs)
   }
 
   function relativeTime(ts) {
@@ -182,6 +183,9 @@ Panel {
     bar: root.bar
     text: "󰚩"
     active: !!root.active && root.active.live
+    // Active state tints the glyph with the theme accent instead of the
+    // default urgent/red.
+    activeColor: root.accent
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.refresh()
       else root.toggle()
@@ -414,22 +418,10 @@ Panel {
 
                 onContainsMouseChanged: if (containsMouse) {
                   root.cursorActive = true
-                  row.focusedIndex = index  // placeholder; real binding below
+                  root.focusedIndex = index
                 }
 
                 onClicked: root.openSession(modelData.id)
-              }
-
-              // Hover follows the mouse into the row's index (declared outside
-              // MouseArea so it can't shadow the delegate's required property).
-              Connections {
-                target: rowMouse
-                function onContainsMouseChanged() {
-                  if (rowMouse.containsMouse) {
-                    root.cursorActive = true
-                    root.focusedIndex = index
-                  }
-                }
               }
 
               Column {
@@ -496,11 +488,6 @@ Panel {
                 Row {
                   width: parent.width
                   spacing: Style.space(6)
-
-                  PanelToolTip {
-                    visible: false
-                    text: ""
-                  }
 
                   Text {
                     width: parent.width
