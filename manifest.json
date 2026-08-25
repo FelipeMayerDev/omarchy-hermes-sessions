@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "kelso.hermes-sessions",
   "name": "Hermes Sessions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Steve Quinn",
   "license": "MIT",
   "description": "Hermes agent status in the Omarchy bar: current activity plus past sessions, clickable to reopen in a hermes TUI.",
