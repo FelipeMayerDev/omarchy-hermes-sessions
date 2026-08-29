@@ -13,8 +13,10 @@ for a in "$@"; do
   esac
 done
 if [[ -n "$HOST" ]]; then
+  # -t is mandatory: without a remote pseudo-TTY hermes --tui exits
+  # immediately with "hermes-tui: no TTY".
   if [[ -z "$SID" ]]; then
-    exec ssh -o BatchMode=yes "$HOST" hermes --tui
+    exec ssh -t -o BatchMode=yes "$HOST" hermes --tui
   fi
   exec ssh -t -o BatchMode=yes "$HOST" hermes --tui --resume "$SID"
 fi

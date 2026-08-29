@@ -126,6 +126,7 @@ Panel {
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session"), String(sessionId)]
     if (root.remoteHost) command.push("--host=" + root.remoteHost)
+    Util.execArgv(command)
     root.close()
   }
 
@@ -137,6 +138,7 @@ Panel {
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session")]
     if (root.remoteHost) command.push("--host=" + root.remoteHost)
+    Util.execArgv(command)
     root.close()
   }
 
