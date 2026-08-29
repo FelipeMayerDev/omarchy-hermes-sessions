@@ -193,11 +193,21 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: "󰚩"
+    text: ""
     active: !!root.active && root.active.live
-    // Active state tints the glyph with the theme accent instead of the
-    // default urgent/red.
-    activeColor: root.accent
+    // Official Nous Research Hermes mark; image dimmed when idle —
+    // BarIconButton's accent tint only applies to glyphs, not images.
+    iconComponent: Component {
+      Image {
+        anchors.fill: parent
+        anchors.margins: 2
+        source: Qt.resolvedUrl("assets/hermes-icon.png")
+        fillMode: Image.PreserveAspectFit
+        smooth: true
+        opacity: root.active && root.active.live ? 1.0 : 0.6
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+      }
+    }
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.refresh()
       else root.toggle()
@@ -300,12 +310,20 @@ Panel {
                 width: Style.font.display
                 height: Style.font.display
 
-                // Pulse only while Hermes is actively working — status you
-                // can read from across the room, silent when idle.
+                Image {
+                  anchors.fill: parent
+                  source: Qt.resolvedUrl("assets/hermes-icon.png")
+                  fillMode: Image.PreserveAspectFit
+                  smooth: true
+                }
+
+                // Pulse badge in the corner while Hermes is actively
+                // working — status you can read from across the room.
                 Rectangle {
                   id: pulseDot
-                  anchors.centerIn: parent
-                  width: 12; height: 12; radius: 6
+                  anchors.right: parent.right
+                  anchors.bottom: parent.bottom
+                  width: 10; height: 10; radius: 5
                   color: root.active && root.active.live ? root.accent : root.dim
                   opacity: root.active && root.active.live ? 1.0 : 0.55
 
