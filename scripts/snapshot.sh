@@ -16,7 +16,7 @@ if [[ -n "$REMOTE" ]]; then
   REMOTE_PY='import json,sqlite3,os
 con=sqlite3.connect(os.path.expanduser("~/.hermes/state.db"))
 con.row_factory=sqlite3.Row
-q="SELECT id, substr(title,1,60) AS title, substr(cwd,1,120) AS cwd, substr(model,1,40) AS model, message_count AS messages, last_activity_at AS last_active, (ended_at IS NULL OR last_activity_at > ended_at) AS open FROM sessions WHERE hidden=0 AND archived=0 ORDER BY last_activity_at DESC LIMIT 8"
+q="SELECT id, substr(title,1,60) AS title, substr(cwd,1,120) AS cwd, substr(model,1,40) AS model, message_count AS messages, COALESCE(last_activity_at,ended_at) AS last_active, (ended_at IS NULL OR last_activity_at > ended_at) AS open FROM sessions WHERE hidden=0 AND archived=0 ORDER BY last_active DESC LIMIT 8"
 print(json.dumps([dict(r) for r in con.execute(q)]))'
   FETCH=(ssh -o BatchMode=yes -o ConnectTimeout=5 "$REMOTE" "python3 -c '$REMOTE_PY'")
 else
@@ -30,14 +30,13 @@ SELECT id,
        substr(COALESCE(cwd,''),1,120)   AS cwd,
        substr(COALESCE(model,''),1,40)  AS model,
        message_count AS messages,
-       last_activity_at AS last_active,
+       COALESCE(last_activity_at, ended_at) AS last_active,
        ended_at IS NULL OR last_activity_at > ended_at AS open
 FROM sessions
 WHERE hidden = 0 AND archived = 0
-ORDER BY last_activity_at DESC
+ORDER BY last_active DESC
 LIMIT 8;
 "
-  FETCH=(sqlite3 -json "$HOME/.hermes/state.db" "$QUERY")
 fi
 
 exec "${FETCH[@]}" 2>/dev/null | python3 -c '

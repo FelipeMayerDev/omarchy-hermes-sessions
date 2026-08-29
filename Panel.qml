@@ -125,7 +125,7 @@ Panel {
     var appId = "hermes-tui-" + String(sessionId)
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session"), String(sessionId)]
-    if (root.remoteHost) command.push(root.remoteHost)
+    if (root.remoteHost) command.push("--host=" + root.remoteHost)
     root.close()
   }
 
@@ -136,7 +136,7 @@ Panel {
     var appId = "hermes-tui-new-" + Date.now()
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session")]
-    if (root.remoteHost) command.push(root.remoteHost)
+    if (root.remoteHost) command.push("--host=" + root.remoteHost)
     root.close()
   }
 
@@ -158,11 +158,11 @@ Panel {
     if (active.live) return root.remoteHost ? "Working (remote)" : "Working"
     return "Last seen " + relativeTime(active.lastActiveTs)
   }
-
   function relativeTime(ts) {
     // nowMs is ms since epoch; snapshot timestamps are seconds.
     var nowSec = nowMs / 1000
     var d = Math.max(0, nowSec - Number(ts || 0))
+    if (Number(ts || 0) <= 0) return "a while ago"
     if (d < 90) return "just now"
     if (d < 3600) return Math.floor(d / 60) + "m ago"
     if (d < 86400) return Math.floor(d / 3600) + "h ago"

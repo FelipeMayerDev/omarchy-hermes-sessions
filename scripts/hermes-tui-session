@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 # omarchy:summary=Resume a Hermes session in a terminal TUI (companion to the hermes-status bar plugin)
-# omarchy:args=<session-id> [user@remote-host]
+# omarchy:args=[--host=user@remote] [session-id]
 # Run INSIDE a terminal (omarchy-launch-tui provides one); never spawns a
-# terminal emulator itself. With no argument, starts a fresh Hermes TUI.
-# With a second argument, the TUI runs on that host over ssh (key-based).
-HOST="${2:-}"
+# terminal emulator itself. With no session-id, starts a fresh Hermes TUI.
+# With --host, the TUI runs on that machine over ssh (key-based auth).
+HOST=""
+SID=""
+for a in "$@"; do
+  case $a in
+    --host=*) HOST="${a#--host=}" ;;
+    *) SID="$a" ;;
+  esac
+done
 if [[ -n "$HOST" ]]; then
-  if [[ -z ${1:-} ]]; then
+  if [[ -z "$SID" ]]; then
     exec ssh -o BatchMode=yes "$HOST" hermes --tui
   fi
-  exec ssh -t -o BatchMode=yes "$HOST" hermes --tui --resume "$1"
+  exec ssh -t -o BatchMode=yes "$HOST" hermes --tui --resume "$SID"
 fi
-if [[ -z ${1:-} ]]; then
+if [[ -z "$SID" ]]; then
   exec hermes --tui
 fi
-exec hermes --tui --resume "$1"
+exec hermes --tui --resume "$SID"
