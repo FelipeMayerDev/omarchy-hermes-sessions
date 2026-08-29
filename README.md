@@ -63,10 +63,19 @@ Right-click the bar icon or use the shell's plugin settings:
 | Key | Default | Description |
 |-----|---------|-------------|
 | `refreshIntervalSec` | 30 | How often to poll the session store (10–600). The panel shows the 8 most recent sessions. |
+| `remoteHost` | *(empty)* | When set to `user@host`, the widget polls the session store and resumes sessions on that machine over ssh (key-based auth required). Empty = local Hermes. |
+
+## Remote Hermes
+
+Hermes doesn't have to run on the machine where the bar lives. Set
+`remoteHost` to `user@server` and the widget reads the session store there
+over ssh (needs `python3` on the server; no `sqlite3` CLI required) and opens
+each session as `ssh -t user@server hermes --tui --resume <id>` in a local
+terminal. Clear the setting to go back to local mode.
 
 ## Privacy
 
-Everything is local. The widget reads your Hermes session store (`~/.hermes/state.db`, SQLite) directly on your machine. No network calls, no telemetry.
+With `remoteHost` set, the widget polls the session store on that host (read-only ssh queries) and resumes sessions there. Without it, everything stays local. No other network calls, no telemetry.
 
 ## How it works
 

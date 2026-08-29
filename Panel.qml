@@ -39,7 +39,8 @@ Panel {
   property bool newSessionFocused: false
   property int focusedIndex: 0
 
-  property int refreshIntervalSec: Math.max(10, Number(setting("refreshIntervalSec", 30)))
+  // Empty = local Hermes; "user@host" polls and resumes over ssh.
+  property string remoteHost: String(setting("remoteHost", "")).trim()
 
   // A sane snapshot is 8 rows × ~250B ≈ 2KB; 8× headroom covers wider
   // panels and longer titles. Anything bigger means the helper broke —
@@ -53,7 +54,7 @@ Panel {
   function refresh() {
     if (snapshotProcess.running) return
     loading = true
-    snapshotProcess.command = [scriptPath("snapshot.sh")]
+    snapshotProcess.command = [scriptPath("snapshot.sh")].concat(root.remoteHost ? [root.remoteHost] : [])
     snapshotProcess.running = true
   }
 
@@ -124,7 +125,7 @@ Panel {
     var appId = "hermes-tui-" + String(sessionId)
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session"), String(sessionId)]
-    Quickshell.execDetached(command)
+    if (root.remoteHost) command.push(root.remoteHost)
     root.close()
   }
 
@@ -135,7 +136,7 @@ Panel {
     var appId = "hermes-tui-new-" + Date.now()
     var command = ["omarchy-launch-or-focus-tui", "--app-id=" + appId,
                    scriptPath("hermes-tui-session")]
-    Quickshell.execDetached(command)
+    if (root.remoteHost) command.push(root.remoteHost)
     root.close()
   }
 
@@ -154,7 +155,7 @@ Panel {
   function statusLine() {
     if (!root.snapshot) return "Checking…"
     if (!active) return "Idle — no recent activity"
-    if (active.live) return "Working"
+    if (active.live) return root.remoteHost ? "Working (remote)" : "Working"
     return "Last seen " + relativeTime(active.lastActiveTs)
   }
 
